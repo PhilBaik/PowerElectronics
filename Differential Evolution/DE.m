@@ -16,19 +16,30 @@ function out = DE(x,NP,CR,F,ite,MO)
 
             out.CR_comparison_temp = rand([1, out.N])<CR;
             out.trial(i,:) = out.donor(i,:).*out.CR_comparison_temp +out.population(i,:,k).*~out.CR_comparison_temp;
-            MO_trial = MO(out.trial(i,:));
-            MO_population = MO(out.population(i,:,k));
 
-            if MO_trial<MO_population
-                out.population(i,:,k+1) = out.trial(i,:);
-                out.y(i,:,k+1) = MO_trial;
-            else
-                out.population(i,:,k+1) = out.population(i,:,k);
-                out.y(i,:,k+1) = MO_population;
-            end
-            disp_name = sprintf('i: %d',i);
-            disp(disp_name);
         end
+        out.trial;
+
+        % By using Matrix
+        MO_trial = MO(out.trial(:,:));
+        MO_population = MO(out.population(:,:,k));
+
+        out.population(:,:,k+1) = out.trial.*(MO_trial<MO_population) + out.population(:,:,k).*(MO_trial>=MO_population);
+        out.y(:,:,k+1) = MO_trial.*(MO_trial<MO_population) + MO_population.*(MO_trial>=MO_population);
+
+        % By using For loop
+        % for m = 1:1:NP
+        %     if MO_trial(m,1)<MO_population(m,1)
+        %         out.population(m,:,k+1) = out.trial(m,:);
+        %         out.y(m,:,k+1) = MO_trial(m,1);
+        %     else
+        %         out.population(m,:,k+1) = out.population(m,:,k);
+        %         out.y(m,:,k+1) = MO_population(m,1);
+        %     end
+        % end
+
+
+
         disp_name = sprintf('iteration: %d',k);
         disp(disp_name);
     end

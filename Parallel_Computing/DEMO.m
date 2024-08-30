@@ -5,7 +5,7 @@
 
 
 
-%% For buck converter
+%% For buck converter, with block parameters
 
 clc;
 clear;
@@ -33,7 +33,6 @@ in_temp_single = Simulink.SimulationInput(mdl);
 in_single = setBlockParameter(in_temp_single,[mdl '/Buck_converter'], 'R', num2str(R_single));
 out_single(i) = sim(in_single);
 disp_name = sprintf('iteration: %2.f %%',i/numSims*100)
-disp('iteration')
 end
 T_single = toc(start_single);
 %% by Parallel computing
@@ -86,7 +85,7 @@ ylabel('Current (A)');
 legend(legend_labels,'Location','NorthEastOutside');
 
 
-%%
+%% For buck converter, with Simulation Input
 
 clc;
 clear;
@@ -148,3 +147,5 @@ title('Current Output')
 xlabel('Time (s)');
 ylabel('Current (A)');
 legend(legend_labels,'Location','NorthEastOutside');
+
+

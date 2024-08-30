@@ -13,7 +13,7 @@ close all;
 
 Fswit = 10e3;
 Tswit = 1/Fswit;
-Tend = 1;
+Tend = 10;
 R = 10;
 D = 0.5;
 
@@ -44,6 +44,9 @@ end
 out = parsim(in, 'ShowProgress','on','TransferBaseWorkspaceVariables','on');
 T_par = toc(start_par);
 
+%%
+k_improve = T_single/T_par;
+%%
 % Termination
 if(~isModelOpen)
     close_system(mdl, 0);
@@ -87,9 +90,6 @@ legend(legend_labels,'Location','NorthEastOutside');
 
 %% For buck converter, with Simulation Input
 
-clc;
-clear;
-close all;
 
 Fswit = 10e3;
 Tswit = 1/Fswit;

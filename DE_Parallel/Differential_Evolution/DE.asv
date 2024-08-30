@@ -2,8 +2,10 @@ function out = DE(x,NP,CR,F,ite,MO)
     
     out.N = length(x.max);
     for i = 1:1:NP
-            out.population(i,:,1) = rand(1,out.N).*(x.max-x.min)+x.min;
+            out.population(i,:,1) = (rand(1,out.N).*(x.max-x.min)+x.min);
     end
+    out.xmin = x.min;
+    out.xmax = x.max;
     out.y(:,:,1) = MO(out.population(:,:,1));
     [value out.best_index(1,1)] = min(out.y(:,1,1));
     out.best_sol(:,:,1) = out.population(out.best_index(1,1),:,1);
@@ -14,7 +16,16 @@ function out = DE(x,NP,CR,F,ite,MO)
             temp2 = randi([1 NP]);
             temp3 = randi([1 NP]);
         
+
             out.donor(i,:) = out.population(temp1,:,k) + F*(out.population(temp2,:,k)-out.population(temp3,:,k));
+            sanity_test = ((out.donor(i,:)-out.xmin).*(out.xmax-out.donor(i,:))<0);
+            sum_sanity_test = sum(sanity_test)
+            while sum_sanity_test > 0
+                temp1 = randi([1 NP]);
+                temp2 = randi([1 NP]);
+                temp3 = randi([1 NP]);
+                out.donor(i,:) = out.population(temp1,:,k) + F*(out.population(temp2,:,k)-out.population(temp3,:,k));
+            end
 
             out.CR_comparison_temp = rand([1, out.N])<CR;
             out.trial(i,:) = out.donor(i,:).*out.CR_comparison_temp +out.population(i,:,k).*~out.CR_comparison_temp;

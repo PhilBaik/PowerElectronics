@@ -20,14 +20,14 @@ isModelOpen = bdIsLoaded(mdl);
 global Fs Fsamp Ts Tsamp Vg Rdson Tend Ttrig L Cdc Ro
 
 
-NP =  32;    %Population size: 10N (N - number of dimension)
+NP =  40;    %Population size: 10N (N - number of dimension)
 
-Kp = 1;
+Kp = 0.04;
 Ki = 1;
 
 CR = 0.9;   %Crossover probability
 F = 0.2;    %Differential Weight
-ite = 2;
+ite = 10;
 
 Fs = 10e3;
 Fsamp = 10e5;
@@ -42,10 +42,10 @@ Ttrig = Tend/2;
 Vref1 = 40;
 Vref2 = 60;
 
-L = 1e-4;
+L = 32e-4;
 Cdc = 1e-4;
 
-Kp_init = 1;
+Kp_init = 0.1;
 Ki_init = 1;
 
 % Kp
@@ -54,9 +54,13 @@ xi1_max = 1;
 % Ki
 xi2_min = 0;
 xi2_max = 1;
+% L
+xi3_min = 0;
+xi3_max = 1e-3;
 
-x_input.min = [xi1_min,xi2_min];
-x_input.max = [xi1_max,xi2_max];
+x_input.min = [xi1_min,xi2_min,xi3_min];
+x_input.max = [xi1_max,xi2_max,xi3_max];
+
 
 
 
@@ -72,10 +76,11 @@ delete(gcp('nocreate'));
 
 
 %%
-Kp_initial = DE_out.population(1,1,1);
-Ki_initial = DE_out.population(1,2,1);
+Kp_initial = DE_out.best_sol(1,1,1);
+Ki_initial = DE_out.best_sol(1,2,1);
 Kp = Kp_initial;
 Ki = Ki_initial;
+L = DE_out.best_sol(1,3,1);
 initial_sim = sim('buck_converter_DE_Parallel.slx');
 initial_temp.vo = initial_sim.logsout.get('vo').Values;
 initial_temp.vref = initial_sim.logsout.get('vref').Values;
@@ -84,20 +89,29 @@ initial.vo = initial_temp.vo.Data(:,1)';
 initial.vref = initial_temp.vref.Data(:,1)';
 
 
-Kp_best = DE_out.best_sol(1,1);
-Ki_best = DE_out.best_sol(1,1);
+Kp_best = DE_out.best_sol(1,1,end);
+Ki_best = DE_out.best_sol(1,2,end);
 Kp = Kp_best;
 Ki = Ki_best;
+L = DE_out.best_sol(1,3,end);
 best_sim = sim('buck_converter_DE_Parallel.slx');
 best_temp.vo = best_sim.logsout.get('vo').Values;
 best_temp.vref = best_sim.logsout.get('vref').Values;
+best_temp.duty = best_sim.logsout.get('Duty').Values;
 best.time = best_temp.vo.Time';
 best.vo = best_temp.vo.Data(:,1)';
 best.vref = best_temp.vref.Data(:,1)';
+best.duty = best_temp.duty.Data(:,1)';
 
 figure(1)
-plot(best.time,best.vo,'DisplayName','best');hold on;
-plot(initial.time,initial.vo,'DisplayName','initial');
+plot(initial.time,initial.vo,'DisplayName','initial');hold on;
+plot(best.time,best.vo,'DisplayName','best');legend;
+plot(best.time,best.vref,'DisplayName','vref');
+
+%%
+
+%%
+
 % %% Test
 % 
 % x = x_input;

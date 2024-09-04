@@ -6,8 +6,10 @@ function out = DE(x,NP,CR,F,ite,MO)
     end
     out.xmin = x.min;
     out.xmax = x.max;
-    out.y(:,:,1) = MO(out.population(:,:,1));
-    [value out.best_index(1,1)] = min(out.y(:,1,1));
+    [out.ytotal(:,:,1), out.ypartial(:,:,1)] = MO(out.population(:,:,1));
+     
+
+    [value out.best_index(1,1)] = min(out.ytotal(:,1,1));
     out.best_sol(:,:,1) = out.population(out.best_index(1,1),:,1);
 
     for k = 1:1:ite
@@ -19,12 +21,14 @@ function out = DE(x,NP,CR,F,ite,MO)
 
             out.donor(i,:) = out.population(temp1,:,k) + F*(out.population(temp2,:,k)-out.population(temp3,:,k));
             sanity_test = ((out.donor(i,:)-out.xmin).*(out.xmax-out.donor(i,:))<0);
-            sum_sanity_test = sum(sanity_test)
+            sum_sanity_test = sum(sanity_test);
             while sum_sanity_test > 0
                 temp1 = randi([1 NP]);
                 temp2 = randi([1 NP]);
                 temp3 = randi([1 NP]);
                 out.donor(i,:) = out.population(temp1,:,k) + F*(out.population(temp2,:,k)-out.population(temp3,:,k));
+                sanity_test = ((out.donor(i,:)-out.xmin).*(out.xmax-out.donor(i,:))<0);
+                sum_sanity_test = sum(sanity_test);
             end
 
             out.CR_comparison_temp = rand([1, out.N])<CR;
@@ -34,11 +38,13 @@ function out = DE(x,NP,CR,F,ite,MO)
         out.trial;
 
         % By using Matrix
-        MO_trial = MO(out.trial(:,:));
-        MO_population = out.y(:,:,k);
+        [MO_trial, MO_trial_partial] = MO(out.trial(:,:));
+        MO_population = out.ytotal(:,:,k);
+        MO_population_partial = out.ypartial(:,:,k);
 
         out.population(:,:,k+1) = out.trial.*(MO_trial<MO_population) + out.population(:,:,k).*(MO_trial>=MO_population);
-        out.y(:,:,k+1) = MO_trial.*(MO_trial<MO_population) + MO_population.*(MO_trial>=MO_population);
+        out.ytotal(:,:,k+1) = MO_trial.*(MO_trial<MO_population) + MO_population.*(MO_trial>=MO_population);
+        out.ypartial(:,:,k+1) = MO_trial_partial.*(MO_trial<MO_population) + MO_population_partial.*(MO_trial>=MO_population);
 
         % By using For loop
         % for m = 1:1:NP
@@ -50,7 +56,7 @@ function out = DE(x,NP,CR,F,ite,MO)
         %         out.y(m,:,k+1) = MO_population(m,1);
         %     end
         % end
-        [value out.best_index(1,k+1)] = min(out.y(:,1,k+1));
+        [value out.best_index(1,k+1)] = min(out.ytotal(:,1,k+1));
         out.best_sol(:,:,k+1) = out.population(out.best_index(1,k+1),:,k+1);
 
         disp_name = sprintf('iteration: %d',k);

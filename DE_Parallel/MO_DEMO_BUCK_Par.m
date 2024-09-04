@@ -1,4 +1,4 @@
-function f = MO_DEMO_BUCK_Par(x)
+function [f partial_f] = MO_DEMO_BUCK_Par(x)
     global Fs Fsamp Ts Tsamp Vg Rdson Tend 
 
     mdl = 'buck_converter_DE_Parallel';
@@ -22,7 +22,9 @@ for i = 1:1:numSims
         vo = simOut.logsout.get('vo').Values;
         vref = simOut.logsout.get('vref').Values;
         duty = simOut.logsout.get('Duty').Values;
-        f(i,1)=sum((vo.Data(:,1)-vref.Data(:,1)).^2)/length(vo.Data(1,:))+1e8*x(i,3);
+        partial_f(i,1) = sqrt(sum((vo.Data(:,1)-vref.Data(:,1)).^2)/length(vo.Data(1,:)));
+        partial_f(i,2) = 0.3e8*x(i,3);
+        f(i,1)= partial_f(i,1)+partial_f(i,2);
 end
     % plot(vo);hold on;plot(vref)
     % length(vo.Data(:,1))-length(vref.Data(:,1))

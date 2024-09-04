@@ -20,14 +20,15 @@ isModelOpen = bdIsLoaded(mdl);
 global Fs Fsamp Ts Tsamp Vg Rdson Tend Ttrig L Cdc Ro
 
 
-NP =  40;    %Population size: 10N (N - number of dimension)
+NP =  36;    %Population size: 10N (N - number of dimension)
 
 Kp = 0.04;
 Ki = 1;
 
 CR = 0.9;   %Crossover probability
 F = 0.2;    %Differential Weight
-ite = 10;
+ite = 100;
+ite_arr = 1:1:ite+1;
 
 Fs = 10e3;
 Fsamp = 10e5;
@@ -50,10 +51,10 @@ Ki_init = 1;
 
 % Kp
 xi1_min = 0;
-xi1_max = 1;
+xi1_max = 10;
 % Ki
 xi2_min = 0;
-xi2_max = 1;
+xi2_max = 10;
 % L
 xi3_min = 0;
 xi3_max = 1e-3;
@@ -103,10 +104,32 @@ best.vo = best_temp.vo.Data(:,1)';
 best.vref = best_temp.vref.Data(:,1)';
 best.duty = best_temp.duty.Data(:,1)';
 
+
+%% Cost function tracking
+[min_cost_total_temp, cost_min_index_temp] = min(DE_out.ytotal);
+cost_min_index = reshape(cost_min_index_temp,[length(cost_min_index_temp),1]);
+min_cost_total = reshape(min_cost_total_temp,[length(cost_min_index_temp),1]);
+for i = 1:1:ite+1
+    min_cost_partial(i,:)=DE_out.ypartial(cost_min_index(i,1),:,i);
+end
+
+L_best_sol_arr = reshape(DE_out.best_sol(1,3,:),[length(DE_out.best_sol(1,3,:)),1]);
+%% Plot
+close all
 figure(1)
 plot(initial.time,initial.vo,'DisplayName','initial');hold on;
 plot(best.time,best.vo,'DisplayName','best');legend;
 plot(best.time,best.vref,'DisplayName','vref');
+
+figure(2)
+plot(ite_arr,min_cost_partial(:,1),'DisplayName','MO1');hold on;
+plot(ite_arr,min_cost_partial(:,2),'DisplayName','MO2');
+plot(ite_arr,min_cost_total,'DisplayName','MO')
+legend;
+grid on;
+
+figure(3)
+plot(ite_arr,L_best_sol_arr,'DisplayName','Inductance')
 
 %%
 

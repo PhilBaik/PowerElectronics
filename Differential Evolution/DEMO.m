@@ -23,7 +23,7 @@ xi2 = linspace(xi2_min,xi2_max,300);
 
 CR = 0.9   %Crossover probability
 F = 0.8   %Differential Weight
-ite = 100;
+ite = 500;
 
 % Meshgrid for comparison
 [X1, X2] = meshgrid(xi1,xi2);

@@ -1,4 +1,4 @@
-function f = MO_DEMO(varargin)
+function [f partial_f] = MO_DEMO(varargin)
     if length(varargin)==1
         x = varargin{1};
         x1 = x(:,1);
@@ -9,6 +9,7 @@ function f = MO_DEMO(varargin)
     end
     
     f = (x1 - 2).^2 + (x2 - 3).^2 + sin(5 * x1) .* sin(5 * x2);
+    partial_f = f;
 end
 
 %% DE

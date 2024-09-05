@@ -7,6 +7,7 @@ function [f partial_f] = MO_DEMO_BUCK_Par(x)
     
     numSims = length(x(:,1));
 
+    
 for i = 1:1:numSims
     in_temp(i) = Simulink.SimulationInput(mdl);
     in(i) = setVariable(in_temp(i),'Kp',x(i,1));
@@ -15,7 +16,6 @@ for i = 1:1:numSims
 end
 
     out = parsim(in, 'ShowProgress','off','TransferBaseWorkspaceVariables','on');
-    
 
 for i = 1:1:numSims
         simOut = out(i);

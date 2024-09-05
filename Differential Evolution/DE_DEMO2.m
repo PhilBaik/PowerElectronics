@@ -111,8 +111,24 @@ grid on;
 DE_out = DE(x_input,NP,CR,F,ite,@MO_DEMO_BUCK);
 
 %%
-Kp = DE_out.best_sol(1,1);
-Ki = DE_out.best_sol(1,2);
+
+Kp = DE_out.best_sol(1,1,1);
+Ki = DE_out.best_sol(1,2,1);
+temp_sim_out = sim('buck_demo.slx');
+
+sim_out.time = temp_sim_out.sim_out.Time';
+sim_out.time(1,end-n_points)
+sim_out.vo = temp_sim_out.sim_out.Data(:,1)';
+sim_out.vref = temp_sim_out.sim_out.Data(:,2)';
+
+sim_out.time = sim_out.time(1,end-n_points:end);
+sim_out.vo = sim_out.vo(1,end-n_points:end);
+sim_out.vref = sim_out.vref(1,end-n_points:end);
+sim_out.rmse = sum((sim_out.vo-sim_out.vref).^2)/length(sim_out.vo);
+
+
+Kp = DE_out.best_sol(1,1,end);
+Ki = DE_out.best_sol(1,2,end);
 
 temp_sim_out2 = sim('buck_demo.slx');
 sim_out2.time = temp_sim_out2.sim_out.Time';

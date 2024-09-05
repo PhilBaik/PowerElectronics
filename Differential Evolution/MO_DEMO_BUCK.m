@@ -1,4 +1,4 @@
-function f = MO_DEMO_BUCK(x)
+function [f partial_f] = MO_DEMO_BUCK(x)
     global Fs Fsamp Ts Tsamp Vg Rdson Tend Kp Ki
     Kp = x(1,1);
     Ki = x(1,2);
@@ -15,6 +15,6 @@ function f = MO_DEMO_BUCK(x)
     sim_out.vo = sim_out.vo(1,end-n_points:end);
     sim_out.vref = sim_out.vref(1,end-n_points:end);
 
-    f = sum((sim_out.vo-sim_out.vref).^2)/length(sim_out.vo);
-
+    f = sqrt(sum((sim_out.vo-sim_out.vref).^2)/length(sim_out.vo));
+    partial_f = f;
 end

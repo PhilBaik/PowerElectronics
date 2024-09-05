@@ -41,14 +41,14 @@ target = [X1(min_row,min_col),X2(min_row,min_col)]
 
 DE_out = DE(x_input,NP,CR,F,ite,@MO_DEMO);
 best_sol = DE_out.best_sol;
-best_Y = min(min(DE_out.y));
+best_Y = min(min(DE_out.ytotal));
 %% Figures
 close all
 figure(1)
 mesh(X1,X2,Y,'DisplayName','Plane');hold on
 stem3(X1(min_row,min_col),X2(min_row,min_col),min_Y,'diamondr','MarkerSize',10,'LineStyle','none','DisplayName','Global minimum')
-stem3(DE_out.population(:,1,1),DE_out.population(:,2,1),DE_out.y(:,1,1),'filled','LineStyle',"none",'DisplayName','initial');
-stem3(DE_out.population(:,1,ite+1),DE_out.population(:,2,ite+1),DE_out.y(:,1,ite+1),'filled','MarkerSize',10,'LineStyle',"none",'DisplayName','final');
+stem3(DE_out.population(:,1,1),DE_out.population(:,2,1),DE_out.ytotal(:,1,1),'filled','LineStyle',"none",'DisplayName','initial');
+stem3(DE_out.population(:,1,ite+1),DE_out.population(:,2,ite+1),DE_out.ytotal(:,1,ite+1),'filled','MarkerSize',10,'LineStyle',"none",'DisplayName','final');
 legend
 
 

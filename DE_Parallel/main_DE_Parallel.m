@@ -12,7 +12,7 @@ close all;
 addpath('Parallel_Computing/')
 addpath('Differential_Evolution/')
 
-mdl = 'buck_converter_DEMO';
+mdl = ['buck_converter_DE_Parallel'];
 isModelOpen = bdIsLoaded(mdl);
 
 
@@ -27,7 +27,7 @@ Ki = 1;
 
 CR = 0.9;   %Crossover probability
 F = 0.2;    %Differential Weight
-ite = 100;
+ite = 10;
 ite_arr = 1:1:ite+1;
 
 Fs = 10e3;
@@ -49,13 +49,13 @@ Cdc = 1e-4;
 Kp_init = 0.1;
 Ki_init = 1;
 
-% Kp
+% Kp_buck
 xi1_min = 0;
 xi1_max = 10;
-% Ki
+% Ki_buck
 xi2_min = 0;
 xi2_max = 10;
-% L
+% Kp_boost
 xi3_min = 0;
 xi3_max = 1e-3;
 
@@ -66,7 +66,7 @@ x_input.max = [xi1_max,xi2_max,xi3_max];
 
 
 %%
-DE_out = DE(x_input,NP,CR,F,ite,@MO_DEMO_BUCK_Par);
+DE_out = DE(x_input,NP,CR,F,ite,@MO_Marx_w_PPB_single);
 % x,NP,CR,F,ite,MO
 
 % Termination

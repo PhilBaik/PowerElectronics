@@ -6,10 +6,11 @@ close all;
 addpath('Parallel_Computing/')
 
 %% Case 1
-nummodel = 10;
-numVariablePair = 100;
+nummodel = 2;
+numcontrol = 2;
+numinputsim = 2;
 
-numSims = nummodel*numVariablePair;
+numSims = nummodel*numcontrol*numinputsim;
 
 
 mdl = 'buck_converter_data_gen';
@@ -31,7 +32,8 @@ L_min = 0;
 L_max = 1e-3;
 Co_min = 0;
 Co_max = 1e-8;
-
+Vg_min = 10;
+Vg_max = 3300;
 %% Test
 i=1;
 Fs(1,i) = rand_gen(Fs_min,Fs_max);
@@ -50,7 +52,7 @@ Ro(1,i) = rand_gen(Ro_min,Ro_max);
 Ttrig1(1,i) = Tend(1,i)/3;
 Ttrig2(1,i) = Tend(1,i)*2/3;
 
-Vg(1,i) = 100;
+Vg(1,i) = rand_gen(Vg_min,Vg_max);
 
 
 Vref1(1,i) = rand_gen(Vref_min,Vref_max);
@@ -58,34 +60,39 @@ Vref2(1,i) = rand_gen(Vref_min,Vref_max);
 Vref3(1,i) = rand_gen(Vref_min,Vref_max);
 L(1,i) = rand_gen(L_min,L_max);
 Co(1,i) = rand_gen(Co_min,Co_max);
+Tend(1,i) = Ts(1,i)*1000;
+%%
 
 %%
-for k = 1:1:nummodel
-    for i = 1:1:numVariablePair
-    Fs(1,i) = rand_gen(Fs_min,Fs_max);
-    Fsamp(1,i) = Fs(1,i)*500;
-    Ts(1,i) = 1/Fs(1,i);
-    Tsamp(1,i) = 1/Fsamp(1,i);
+for l = 1:1:nummodel
+    Fs(1,(l-1)*numinputsim*numcontrol+1:l*numinputsim*numcontrol)= rand_gen(Fs_min,Fs_max);
+    Fsamp(1,(l-1)*numinputsim*numcontrol+1:l*numinputsim*numcontrol) = Fs(1,(l-1)*numinputsim*numcontrol+1:l*numinputsim*numcontrol)*500;
+    Ts(1,(l-1)*numinputsim*numcontrol+1:l*numinputsim*numcontrol) = 1/Fs(1,(l-1)*numinputsim*numcontrol+1);
+    Tsamp(1,(l-1)*numinputsim*numcontrol+1:l*numinputsim*numcontrol) = 1/Fsamp(1,(l-1)*numinputsim*numcontrol+1);
+    Tend(1,(l-1)*numinputsim*numcontrol+1:l*numinputsim*numcontrol) = Ts(1,(l-1)*numinputsim*numcontrol+1)*1000;
     
-    Rdson(1,i) = rand_gen(Rdson_min,Rdson_max);
-    
-    Kp(1,i) = rand_gen(Kp_min,Kp_max);
-    Ki(1,i) = rand_gen(Kp_min,Kp_max);
-    
-    Tend(1,i) = Ts(1,i)*1000;
-    
-    Ro(1,i) = rand_gen(Ro_min,Ro_max);
-    Ttrig1(1,i) = Tend(1,i)/3;
-    Ttrig2(1,i) = Tend(1,i)*2/3;
-    
-    Vg(1,i) = 100;
-    
-    
-    Vref1(1,i) = rand_gen(Vref_min,Vref_max);
-    Vref2(1,i) = rand_gen(Vref_min,Vref_max);
-    Vref3(1,i) = rand_gen(Vref_min,Vref_max);
-    L(1,i) = rand_gen(L_min,L_max);
-    Co(1,i) = rand_gen(Co_min,Co_max);
+    Rdson(1,(l-1)*numinputsim*numcontrol+1:l*numinputsim*numcontrol) = rand_gen(Rdson_min,Rdson_max);
+    Vg(1,(l-1)*numinputsim*numcontrol+1:l*numinputsim*numcontrol) = rand_gen(Vg_min,Vg_max);
+    for m = 1:1:numcontrol
+        Kp(1,(l-1)*numinputsim*numcontrol+1) = rand_gen(Kp_min,Kp_max);
+        Ki(1,(l-1)*numinputsim*numcontrol+1) = rand_gen(Kp_min,Kp_max);
+
+        for n = 1:1:numinputsim
+        Fs(1,(k-1)*numcontrol+i) = Fs(1,(k-1)*nummodel+1);
+
+        Ro(1,i) = rand_gen(Ro_min,Ro_max);
+        Ttrig1(1,i) = Tend(1,i)/3;
+        Ttrig2(1,i) = Tend(1,i)*2/3;
+
+
+
+
+        Vref1(1,i) = rand_gen(Vref_min,Vref_max);
+        Vref2(1,i) = rand_gen(Vref_min,Vref_max);
+        Vref3(1,i) = rand_gen(Vref_min,Vref_max);
+        L(1,i) = rand_gen(L_min,L_max);
+        Co(1,i) = rand_gen(Co_min,Co_max);
+        end
     end
 end
 

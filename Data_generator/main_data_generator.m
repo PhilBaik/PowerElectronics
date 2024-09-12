@@ -1,14 +1,14 @@
 restoredefaultpath
-
+delete(gcp('nocreate'));
 clc;
 clear;
 close all;
 addpath('Parallel_Computing/')
 
 %% Case 1
-nummodel = 2;
-numcontrol = 2;
-numinputsim = 80;
+nummodel = 1;
+numcontrol = 40;
+numinputsim = 14;
 
 numSims = nummodel*numcontrol*numinputsim;
 
@@ -115,17 +115,29 @@ for i = 1:1:numSims
 end
 %%
 out_sim = parsim(in, 'ShowProgress','on','TransferBaseWorkspaceVariables','on');
+delete(gcp('nocreate'));
+
 
 %%
 for i = 1:1:numSims
+    simData{i}.Variables = in(i).Variables;
+    simData{i}.BlockParameters = in(i).BlockParameters;
     simOut = out_sim(i);
-    ts_vo = simOut.logsout.get('vo').Values;
     simData{i}.time = simOut.logsout.get('vo').Values.Time';
     simData{i}.vo = simOut.logsout.get('vo').Values.Data(:,1)';
     simData{i}.vref = simOut.logsout.get('vref').Values.Data(:,1)';
     simData{i}.gate = simOut.logsout.get('Gate').Values.Data(:,1)';
+    simData{i}.io = simOut.logsout.get('io').Values.Data(:,1)';
+end
+%%
+i=1;
+filename = sprintf('%s_%d.mat',date(),i);
+while exist(filename)
+    i = i+1;
+    filename = sprintf('%s_%d.mat',date(),i);
 end
 
+save(filename,'simData')
 %%
 close all
 

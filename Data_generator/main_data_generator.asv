@@ -1,14 +1,14 @@
 restoredefaultpath
-
+delete(gcp('nocreate'));
 clc;
 clear;
 close all;
 addpath('Parallel_Computing/')
 
 %% Case 1
-nummodel = 2;
-numcontrol = 2;
-numinputsim = 2;
+nummodel = 1;
+numcontrol = 1;
+numinputsim = 42;
 
 numSims = nummodel*numcontrol*numinputsim;
 
@@ -70,28 +70,26 @@ for l = 1:1:nummodel
     Ts(1,(l-1)*numinputsim*numcontrol+1:l*numinputsim*numcontrol) = 1/Fs(1,(l-1)*numinputsim*numcontrol+1);
     Tsamp(1,(l-1)*numinputsim*numcontrol+1:l*numinputsim*numcontrol) = 1/Fsamp(1,(l-1)*numinputsim*numcontrol+1);
     Tend(1,(l-1)*numinputsim*numcontrol+1:l*numinputsim*numcontrol) = Ts(1,(l-1)*numinputsim*numcontrol+1)*1000;
+    Ttrig1(1,(l-1)*numinputsim*numcontrol+1:l*numinputsim*numcontrol) = Tend(1,(l-1)*numinputsim*numcontrol+1)/3;
+    Ttrig2(1,(l-1)*numinputsim*numcontrol+1:l*numinputsim*numcontrol) = Tend(1,(l-1)*numinputsim*numcontrol+1)*2/3;
+
     
     Rdson(1,(l-1)*numinputsim*numcontrol+1:l*numinputsim*numcontrol) = rand_gen(Rdson_min,Rdson_max);
     Vg(1,(l-1)*numinputsim*numcontrol+1:l*numinputsim*numcontrol) = rand_gen(Vg_min,Vg_max);
     for m = 1:1:numcontrol
-        Kp(1,(l-1)*numinputsim*numcontrol+1) = rand_gen(Kp_min,Kp_max);
-        Ki(1,(l-1)*numinputsim*numcontrol+1) = rand_gen(Kp_min,Kp_max);
+        Kp(1,(l-1)*numinputsim*numcontrol+(m-1)*numinputsim+1:(l-1)*numinputsim*numcontrol+m*numinputsim) = rand_gen(Kp_min,Kp_max);
+        Ki(1,(l-1)*numinputsim*numcontrol+(m-1)*numinputsim+1:(l-1)*numinputsim*numcontrol+m*numinputsim) = rand_gen(Kp_min,Kp_max);
 
         for n = 1:1:numinputsim
-        Fs(1,(k-1)*numcontrol+i) = Fs(1,(k-1)*nummodel+1);
+  
 
-        Ro(1,i) = rand_gen(Ro_min,Ro_max);
-        Ttrig1(1,i) = Tend(1,i)/3;
-        Ttrig2(1,i) = Tend(1,i)*2/3;
-
-
-
-
-        Vref1(1,i) = rand_gen(Vref_min,Vref_max);
-        Vref2(1,i) = rand_gen(Vref_min,Vref_max);
-        Vref3(1,i) = rand_gen(Vref_min,Vref_max);
-        L(1,i) = rand_gen(L_min,L_max);
-        Co(1,i) = rand_gen(Co_min,Co_max);
+        Ro(1,(l-1)*numinputsim*numcontrol+(m-1)*numinputsim+n) = rand_gen(Ro_min,Ro_max);
+        
+        Vref1(1,(l-1)*numinputsim*numcontrol+(m-1)*numinputsim+n) = rand_gen(Vref_min,Vref_max);
+        Vref2(1,(l-1)*numinputsim*numcontrol+(m-1)*numinputsim+n) = rand_gen(Vref_min,Vref_max);
+        Vref3(1,(l-1)*numinputsim*numcontrol+(m-1)*numinputsim+n) = rand_gen(Vref_min,Vref_max);
+        L(1,(l-1)*numinputsim*numcontrol+(m-1)*numinputsim+n) = rand_gen(L_min,L_max);
+        Co(1,(l-1)*numinputsim*numcontrol+(m-1)*numinputsim+n) = rand_gen(Co_min,Co_max);
         end
     end
 end
@@ -117,7 +115,16 @@ for i = 1:1:numSims
 end
 %%
 out_sim = parsim(in, 'ShowProgress','on','TransferBaseWorkspaceVariables','on');
+delete(gcp('nocreate'));
+%%
+i=1;
+filename = sprintf('%s_%d.mat',date(),i);
+while exist(filename)
+    i = i+1;
+    filename = sprintf('%s_%d.mat',date(),i);
+end
 
+save(filename,'out_sim')
 %%
 for i = 1:1:numSims
     simOut = out_sim(i);
@@ -126,7 +133,9 @@ for i = 1:1:numSims
     simData{i}.vo = simOut.logsout.get('vo').Values.Data(:,1)';
     simData{i}.vref = simOut.logsout.get('vref').Values.Data(:,1)';
     simData{i}.gate = simOut.logsout.get('Gate').Values.Data(:,1)';
+    simData{i}.io = simOut.logsout.get('Gate').Values.Data(:,1)';
 end
+
 
 %%
 close all

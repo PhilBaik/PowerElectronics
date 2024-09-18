@@ -6,8 +6,8 @@ close all;
 
 %% Case 1
 nummodel = 1;
-numcontrol = 2;
-numinputsim = 10;
+numcontrol = 40;
+numinputsim = 20;
 
 numSims = nummodel*numcontrol*numinputsim;
 
@@ -178,7 +178,7 @@ mkdir(foldername);
 filename1 = sprintf('%s/ver%d_1_1.mat',foldername,i);
 while exist(filename1)
     i = i+1;
-    filename1 = sprintf('%s/ver%d_1_1.mat',date(),i);
+    filename1 = sprintf('%s/ver%d_1_1.mat',foldername,i);
 end
 
 for l = 1:1:nummodel
